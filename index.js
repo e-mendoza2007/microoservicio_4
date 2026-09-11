@@ -1,6 +1,9 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 8004;
+
+app.use(cors());
 
 const CATALOGO_URL = process.env.CATALOGO_URL || 'http://localhost:8001';
 const PARTIDAS_URL = process.env.PARTIDAS_URL || 'http://localhost:8002';
@@ -17,6 +20,10 @@ async function fetchSeguro(url) {
   }
 }
 
+function norm(s) {
+  return s?.trim().toLowerCase();
+}
+
 app.get('/perfil/:nombre_jugador', async (req, res) => {
   const nombre = req.params.nombre_jugador;
 
@@ -26,7 +33,7 @@ app.get('/perfil/:nombre_jugador', async (req, res) => {
   const listaClientes = await fetchSeguro(`${MEMBRESIAS_URL}/clientes`);
   if (listaClientes) {
     for (const cliente of listaClientes) {
-      if (cliente.nombre === nombre) {
+      if (norm(cliente.nombre) === norm(nombre)) {
         membresia = { plan: cliente.plan, reservas: cliente.reservas };
       }
     }
