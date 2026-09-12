@@ -7,13 +7,13 @@ servers:
   - url: http://localhost:8004
     description: Servidor de desarrollo
 paths:
-  /perfil/{nombre_jugador}:
+  /perfil:
     get:
       summary: Obtener ficha consolidada de un jugador
       description: Llama internamente a MS1, MS2 y MS3 para armar un perfil con membresía, reservas y partidas jugadas.
       parameters:
         - name: nombre_jugador
-          in: path
+          in: query
           required: true
           schema:
             type: string

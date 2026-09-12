@@ -2,8 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 8004;
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./perfil-jugador.yaml');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(cors());
+
+
 
 const CATALOGO_URL = process.env.CATALOGO_URL || 'http://localhost:8001';
 const PARTIDAS_URL = process.env.PARTIDAS_URL || 'http://localhost:8002';
@@ -23,6 +30,7 @@ async function fetchSeguro(url) {
 function norm(s) {
   return s?.trim().toLowerCase();
 }
+
 
 app.get('/perfil', async (req, res) => {
   const nombre = req.query.nombre_jugador;
