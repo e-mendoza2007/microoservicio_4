@@ -24,8 +24,11 @@ function norm(s) {
   return s?.trim().toLowerCase();
 }
 
-app.get('/perfil/:nombre_jugador', async (req, res) => {
-  const nombre = req.params.nombre_jugador;
+app.get('/perfil', async (req, res) => {
+  const nombre = req.query.nombre_jugador;
+  if (!nombre) {
+    return res.status(400).json({ error: 'Falta el parámetro nombre_jugador' });
+  }
 
   //Uso de microservicio 3
   let membresia = { plan: 'premium', reservas: [{ mesa: 4, horario: '2026-09-10 18:00', estado: 'confirmada' }] };
@@ -70,6 +73,12 @@ app.get('/perfil/:nombre_jugador', async (req, res) => {
     reservas: membresia.reservas,
     partidas: partidasConNombreJuego
   });
+});
+
+app.get('/perfil/lista', async (req, res) => {
+  const listaClientes = await fetchSeguro(`${MEMBRESIAS_URL}/clientes`);
+  const nombres = listaClientes ? listaClientes.map(c => c.nombre) : [];
+  res.json(nombres);
 });
 
 app.listen(PORT, () => {
