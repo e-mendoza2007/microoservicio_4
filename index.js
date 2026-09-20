@@ -10,7 +10,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(cors());
 
-
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 const CATALOGO_URL = process.env.CATALOGO_URL || 'http://localhost:8001';
 const PARTIDAS_URL = process.env.PARTIDAS_URL || 'http://localhost:8002';
