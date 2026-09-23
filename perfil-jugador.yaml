@@ -1,11 +1,14 @@
 openapi: 3.0.0
 info:
   title: API de Perfil de Jugador
-  description: Microservicio agregador (sin base de datos propia). Combina datos de Catálogo (MS1), Partidas (MS2) y Membresías (MS3) en una ficha consolidada del jugador.
+  description: Microservicio agregador (sin base de datos propia). Combina datos de Catálogo (MS1), Partidas (MS2) y Membresías (MS3) en una ficha consolidada del jugador. Si alguno de los otros microservicios no responde, se usan datos mock para poder probar sin depender de ellos.
   version: 1.0.0
 servers:
   - url: http://localhost:8004
     description: Servidor de desarrollo
+  # Agrega aquí la URL pública de API Gateway cuando la tengas, por ejemplo:
+  # - url: https://<id>.execute-api.<region>.amazonaws.com/<stage>
+  #   description: Producción (API Gateway)
 paths:
   /perfil:
     get:
@@ -15,6 +18,7 @@ paths:
         - name: nombre_jugador
           in: query
           required: true
+          description: Nombre del jugador (no distingue mayúsculas ni espacios en los extremos al buscar la membresía).
           schema:
             type: string
           example: Ana Torres
@@ -66,3 +70,30 @@ paths:
                         juego_nombre:
                           type: string
                           example: "Catan"
+        "400":
+          description: Falta el parámetro nombre_jugador
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Falta el parámetro nombre_jugador
+  /perfil/lista:
+    get:
+      summary: Listar los nombres de los jugadores
+      description: Devuelve los nombres de los clientes registrados en MS3. Sirve para llenar un selector en el frontend. Si MS3 no responde, devuelve un arreglo vacío.
+      responses:
+        "200":
+          description: Lista de nombres de jugadores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example:
+                  - Ana Torres
+                  - Luis Pérez
+                  - María Gómez
