@@ -10,7 +10,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(cors());
 
-
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 const CATALOGO_URL = process.env.CATALOGO_URL || 'http://localhost:8001';
 const PARTIDAS_URL = process.env.PARTIDAS_URL || 'http://localhost:8002';
@@ -51,21 +53,14 @@ app.get('/perfil', async (req, res) => {
   }
 
   //Uso de microservicio 2
-  let partidas = [
-    { id: 1, juego_id: 5, fecha: '2026-08-20', resultado: 'ganó' },
-    { id: 2, juego_id: 3, fecha: '2026-08-25', resultado: 'perdió' }
-  ];
+  let partidas = [];
 
-  const listaPartidas = await fetchSeguro(`${PARTIDAS_URL}/partidas`);
-  if (listaPartidas) {
-    const todasLasPartidasCompletas = await Promise.all(
-      listaPartidas.map(p => fetchSeguro(`${PARTIDAS_URL}/partidas/${p.id}`))
-    );
-
-    partidas = todasLasPartidasCompletas.filter(
-      p => p && p.jugadores && p.jugadores.includes(nombre)
-    );
+  const partidasDelJugador = await fetchSeguro(`${PARTIDAS_URL}/partidas?jugador=${encodeURIComponent(nombre)}`);
+  if (partidasDelJugador) {
+    partidas = partidasDelJugador;
   }
+
+  
 
   //Uso de microservicio 1
   const partidasConNombreJuego = [];
