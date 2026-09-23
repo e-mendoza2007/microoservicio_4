@@ -121,7 +121,7 @@ Servicio: <http://localhost:8004> — Swagger: <http://localhost:8004/api-docs>
 ## Docker
 
 ```bash
-docker build -t usuario/perfil-jugador .
+docker build -t emendozatec/perfil-jugador .
 
 docker run -d --name perfil-jugador -p 8004:8004 \
   -e CATALOGO_URL=http://<host-ms1>:8001 \
@@ -133,7 +133,7 @@ docker run -d --name perfil-jugador -p 8004:8004 \
 Subir a Docker Hub:
 
 ```bash
-docker push usuario/perfil-jugador
+docker push emendozatec/perfil-jugador
 ```
 
 ### Ejemplo con docker-compose
@@ -141,7 +141,7 @@ docker push usuario/perfil-jugador
 ```yaml
 services:
   perfil-jugador:
-    image: usuario/perfil-jugador
+    image: emendozatec/perfil-jugador
     ports:
       - "8004:8004"
     environment:
