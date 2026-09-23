@@ -33,7 +33,6 @@ function norm(s) {
   return s?.trim().toLowerCase();
 }
 
-
 app.get('/perfil', async (req, res) => {
   const nombre = req.query.nombre_jugador;
   if (!nombre) {
@@ -60,15 +59,18 @@ app.get('/perfil', async (req, res) => {
     partidas = partidasDelJugador;
   }
 
-  
-
   //Uso de microservicio 1
-  const partidasConNombreJuego = [];
-  for (const partida of partidas) {
-    const juego = await fetchSeguro(`${CATALOGO_URL}/juegos/${partida.juego_id}`);
-    const nombreJuego = juego ? juego.titulo : `Juego #${partida.juego_id} (mock)`;
-    partidasConNombreJuego.push({ ...partida, juego_nombre: nombreJuego });
-  }
+  const juegoIdsUnicos = [...new Set(partidas.map(p => p.juego_id))];
+  const juegosPorId = {};
+  await Promise.all(juegoIdsUnicos.map(async (juegoId) => {
+    const juego = await fetchSeguro(`${CATALOGO_URL}/juegos/${juegoId}`);
+    juegosPorId[juegoId] = juego ? juego.titulo : `Juego #${juegoId} (mock)`;
+  }));
+
+  const partidasConNombreJuego = partidas.map((partida) => ({
+    ...partida,
+    juego_nombre: juegosPorId[partida.juego_id],
+  }));
 
   res.json({
     jugador: nombre,
