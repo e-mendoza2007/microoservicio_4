@@ -1,10 +1,14 @@
 # Microservicio 4 — Perfil de Jugador
 
-| Microservicio | Rol | Puerto | Qué se consulta |
-|---|---|---|---|
-| MS1 – Catálogo de juegos (Python + MySQL) | Traducir `juego_id` a nombre real del juego | 8001 | `GET /juegos/{id}` |
-| MS2 – Partidas jugadas (Java + PostgreSQL) | Partidas en las que participó el jugador | 8002 | `GET /partidas`, `GET /partidas/{id}` |
-| MS3 – Membresías y reservas (Node.js + MongoDB) | Plan y reservas del jugador | 8003 | `GET /clientes` |
+Microservicio **agregador** (sin base de datos propia) del proyecto *Ludoteca / Red de Cafés de Juegos de Mesa* (CS2032 – Cloud Computing, UTEC 2026-2).
+
+Arma una **ficha consolidada** de un jugador combinando datos de otros tres microservicios:
+
+| Microservicio | Aporta | Puerto |
+|---|---|---|
+| MS1 – Catálogo de juegos (Python + MySQL) | Nombre real de cada juego | 8001 |
+| MS2 – Partidas jugadas (Java + PostgreSQL) | Partidas en las que participó el jugador | 8002 |
+| MS3 – Membresías y reservas (Node.js + MongoDB) | Plan y reservas del jugador | 8003 |
 
 Este microservicio corre en el puerto **8004**.
 
@@ -70,9 +74,9 @@ Documentación Swagger UI generada desde `perfil-jugador.yaml`.
 
 ## Cómo funciona `/perfil`
 
-1. **MS3 (membresías):** llama a `GET /clientes` y busca al cliente cuyo nombre coincide con `nombre_jugador` (comparación sin distinguir mayúsculas ni espacios en los extremos). De ahí saca `plan` y `reservas`.
-2. **MS2 (partidas):** llama a `GET /partidas`, luego pide el detalle de cada una con `GET /partidas/{id}` y se queda con las partidas cuya lista `jugadores` incluye al jugador.
-3. **MS1 (catálogo):** por cada partida llama a `GET /juegos/{juego_id}` y agrega el campo `juego_nombre` con el `titulo` del juego.
+1. **MS3 (membresías):** obtiene los clientes y busca al que coincide con `nombre_jugador` (sin distinguir mayúsculas ni espacios en los extremos). De ahí saca `plan` y `reservas`.
+2. **MS2 (partidas):** obtiene las partidas con su detalle y se queda con aquellas en las que participa el jugador.
+3. **MS1 (catálogo):** por cada partida consulta el juego por su `juego_id` y agrega el campo `juego_nombre` con su título.
 4. Combina todo en un único JSON.
 
 ### Tolerancia a fallos (mock)
@@ -157,3 +161,17 @@ services:
 ├── perfil-jugador.yaml   # documentación OpenAPI (Swagger)
 └── README.md
 ```
+
+## Limitaciones conocidas
+
+- La búsqueda de partidas consulta el detalle de **todas** las partidas de MS2, por lo que con muchos registros (p. ej. los 20 000 de datos de prueba) puede ser lento. Una mejora sería que MS2 permita filtrar por jugador.
+- El filtro de partidas compara el nombre de forma exacta (`jugadores.includes(nombre)`), mientras que MS3 lo compara normalizado; además asume que `jugadores` es una lista de nombres (texto).
+- Los datos mock se usan también cuando MS3 responde pero el jugador no existe en `clientes`.
+
+## Repositorios relacionados
+
+- MS1 – Catálogo: <https://github.com/r006kj/api-catalog.git>
+- MS2 – Partidas: <https://github.com/LuisEnriqueNieva/partidas-jugadas.git>
+- MS3 – Membresías: <https://github.com/ximetch-i/membresias-reservas>
+- MS4 – Perfil de jugador (este repo): <https://github.com/e-mendoza2007/microoservicio_4>
+- MS5 – Analítico: <https://github.com/naoh-io/microservicio5-analitico.git>
